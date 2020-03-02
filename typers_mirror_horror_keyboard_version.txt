@@ -1,0 +1,170 @@
+1 rem mirror horror - keyboard version
+4 rem dsiclaimer - dont remove border, or the game will crash the program
+10 rem "mirror horror - kb""
+20 poke 53281,0:poke 53280,0
+30 poke 646,5:print chr$(147):gosub 200
+40 poke 646,1
+100 poke 214,4:print:poke 211,3
+110 print "use mirror to kill monsters!"
+111 poke 214,6:print:poke 211,3
+115 print "use cursors to move over mirrorrs"
+121 poke 214,8:print:poke 211,3
+125 print "space-bar to tilt mirrors"
+131 poke 214,10:print:poke 211,3
+135 print "dont let monsters find you"
+136 poke 214,12:print:poke 211,3
+138 print "controls:"
+139 poke 214,13:print:poke 211,3
+140 print "[cursors][space bar][1][0]"
+141 poke 214,14:print:poke 211,3
+142 print "[return]"
+196 get keyb$:rem wait for keypress
+197 if keyb$="" then goto 196
+198 poke 646,1:print chr$(147):gosub 200:goto 300
+199 :rem
+200 for cnt=0 to 19:rem "game frame"
+201 poke 1024+19-cnt+40*24,160
+202 poke 1024+19-cnt+40*0,160
+203 poke 1024+20+cnt+40*24,160
+204 poke 1024+20+cnt+40*0,160
+206 poke 1024+00+40*(12+int(12/19*cnt)),160
+207 poke 1024+00+40*(12-int(12/19*cnt)),160
+208 poke 1024+39+40*(12+int(12/19*cnt)),160
+209 poke 1024+39+40*(12-int(12/19*cnt)),160
+210 next:return
+300 :rem
+301 dim m(4):rem "mirror angle"
+302 m(1)=78:m(2)=67:m(3)=77:m(4)=66
+303 g(1)=107:g(2)=113:g(3)=115:g(4)=114
+400 :rem
+401 for cnt=1 to 10:rem "set mirrors"
+402 mx=int(rnd(1)*37)+1
+403 my=int(rnd(1)*22)+1
+404 m=int(rnd(1)*4)+1
+405 pk=peek(1024+mx+40*my)
+406 if pk<> 32 then 402
+407 poke 1024+mx+40*my,m(m):next
+410 :rem
+411 for cnt=1 to 10:rem "set enemy"
+412 ex=int(rnd(1)*37)+1
+413 ey=int(rnd(1)*22)+1
+414 pk=peek(1024+ex+40*ey)
+415 if pk<>32 then 412
+416 poke 1024+ex+40*ey,88
+417 poke55296+ex+40*ey,2:next
+420 :rem
+421 rem "set gun"
+422 gx=int(rnd(1)*37)+1
+423 gy=int(rnd(1)*22)+1
+424 g=int(rnd(1)*4)+1
+425 pk=peek(1024+gx+40*gy)
+426 if pk<>32 then 422
+427 poke 1024+gx+40*gy,g(g)
+428 poke55296+gx+40*gy,6
+500 :rem
+501 rem "set player"
+502 px=int(rnd(1)*37)+1
+503 py=int(rnd(1)*22)+1
+504 pk=peek(1024+px+40*py)
+505 if pk<>32 then 502
+600 :rem
+601 pk=peek(1024+px+40*py)
+602 poke1024+px+40*py,81:rem rst stp
+603 poke1024+px+40*py,pk:dx=0:dy=0
+604 get keyb$:if keyb$="" then 602
+605 if keyb$=" " then gosub 700
+606 if keyb$=chr$(29) then dx=+1
+607 if keyb$=chr$(157)then dx=-1
+608 if keyb$=chr$(17) then dy=+1
+609 if keyb$=chr$(145)then dy=-1
+610 if keyb$="1" or keyb$="0" then gosub800
+611 if keyb$=chr$(13) then gosub 900
+617 s=peek(1024+px+dx+40*(py+dy))
+618 if s=160 then 602
+619 if s=88 then goto 2000
+620 px=px+dx:py=py+dy:goto 601
+699 :end
+700 :rem
+702 rem "adjust"
+704 ad=peek(1024+px+40*py)
+706 if ad=m(1) then ad=m(2):goto 725
+708 if ad=m(2) then ad=m(3):goto 725
+710 if ad=m(3) then ad=m(4):goto 725
+712 if ad=m(4) then ad=m(1):goto 725
+714 if ad=g(1) then ad=g(2):goto 725
+716 if ad=g(2) then ad=g(3):goto 725
+718 if ad=g(3) then ad=g(4):goto 725
+720 if ad=g(4) then ad=g(1):goto 725
+725 poke 1024+px+40*py,ad:return
+800 :rem
+801 if keyb$<>"0" then 810:pick mirr
+802 for cnt=1 to 4
+804 pk=peek(1024+px+40*py)
+806 if pk<>m(cnt) then 809
+808 poke1024+px+40*py,32:mr=mr+1
+809 next
+810 if keyb$<>"1" then 825:place mir
+812 if mr=0 then 825
+814 pk=peek(1024+px+40*py)
+816 if pk<>32 then 825
+818 m=int(rnd(1)*4)+1:mr=mr-1
+820 poke 1024+px+40*py,m(m)
+825 return
+900 :rem
+910 pk=peek(1024+gx+40*gy)
+911 :rem
+912 if pk=107 then bx=+1:by=0
+914 if pk=115 then bx=-1:by=0
+916 if pk=114 then bx=0:by=+1
+918 if pk=113 then bx=0:by=-1
+920 x=gx:y=gy
+921 pk=peek(1024+x+40*y)
+922 if pk=32 then poke 1024+x+40*y,102
+924 if pk=88 then sc=sc+1000
+925 if pk=88 then poke 1024+x+40*y,86
+926 x=x+bx:y=y+by
+928 pk=peek(1024+x+40*y)
+929 if pk<>66 then 932
+930 if bx=+1 and by=0 then d=2
+931 if bx=-1 and by=0 then d=1
+932 if pk<>67 then 945
+937 if bx=0 and by=+1 then d=4
+941 if bx=0 and by=-1 then d=3
+945 if pk<>78 then 950
+946 if bx=+1 and by=0 then d=4:
+947 if bx=-1 and by=0 then d=3:
+948 if bx=0 and by=+1 then d=2:
+949 if bx=0 and by=-1 then d=1:
+950 if pk<>77 then 960
+952 if bx=+1 and by=0 then d=3
+954 if bx=-1 and by=0 then d=4
+956 if bx=0 and by=+1 then d=1
+958 if bx=0 and by=-1 then d=2
+960 if d=1 then bx=+1:by=0
+962 if d=2 then bx=-1:by=0
+964 if d=3 then bx=0:by=+1
+966 if d=4 then bx=0:by=-1
+999 if pk<>160 then 921
+1000 print chr$(147):
+1010 x=2:y=2:x$=" good work":gosub 3000
+1020 x=3:y=4:x$="you killed":gosub 3000
+1040 x$=str$(sc/1000)+" enemies"
+1050 x=4:y=6:gosub 3000:x=5:y=8
+1060 x$="more plays?":gosub 3000
+1070 get keyb$:if keyb$="" then 1070
+1080 if keyb$="y" then run
+1090 if keyb$="n" then end
+1099 goto 1070
+2000 :rem
+2001 poke 214,12:print:poke 211,13
+2002 print "{reverse on}{space*11}{reverse off}"
+2004 poke 214,13:print:poke 211,13
+2006 print "{reverse on} game over {reverse off}"
+2008 poke 214,14:print:poke 211,13
+2009 print "{reverse on}{space*11}{reverse off}"
+2010 for wt=0 to 400:next wt:
+2011 print chr$(147);
+2012 print " lets try again "
+2013 for wt=0 to 400:next wt:run
+3000 poke 214,y:print:poke 211,x
+3010 print x$;:return
