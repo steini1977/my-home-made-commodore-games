@@ -1,4 +1,3 @@
-<pre>
 10 rem car race random outcome
 20 rem vic=53248
 30 for y=1 to 63*2
@@ -79,4 +78,3 @@
 808 if peek(53248+7*2)>250 then print "yellow car won!"
 809 get kb$:if kb$="" then 809
 820 goto 65
-</pre>
